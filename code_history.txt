@@ -1,0 +1,923 @@
+# start by making the directories for the project and for the first paper
+mkdir gutmicrobiome
+mkdir moeller
+mkdir moeller_gz
+# downloaded and extracted file from the moeller ENA sequences to the moeller_gz directory
+# next needed to extract all of the .gz file pairs from the subdirectories they came in (one directory per pair)
+find /mnt/c/Users/olsda/gutmicrobiome/moeller/moeller_gz -mindepth 2 -type f \
+-exec mv -t /mnt/c/Users/olsda/gutmicrobiome/moeller/moeller_gz \{\} +
+# next we find the paths for the manifest file
+ls -d "$PWD/"*_1*
+ls -d "$PWD/"*_2*
+# created the manifest and ready to import (note needed PairedEndFastqManifestPhred33V2)
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path moeller_manifest.txt \
+  --output-path moeller_pairend_demux.qza \
+  --input-format PairedEndFastqManifestPhred33V2
+# then we generate the qzv file
+qiime demux summarize \
+  --i-data moeller_pairend_demux.qza \
+  --o-visualization moeller_pairend_demux.qzv
+# then we compute the DADA2 files
+qiime dada2 denoise-single \
+--i-demultiplexed-seqs moeller_single_demux.qza \
+--p-trunc-len 150 \
+--p-trim-left 0 \
+--o-representative-sequences rep-seqs-Moeller.qza \
+--o-table tableMoeller.qza \
+--o-denoising-stats stats-dadaMoeller.qza
+
+# we now move on to the next study
+mkdir li2021
+mkdir fastqz
+# import the .gz files
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/039/SRR14550839/SRR14550839_1.fastq.gz -o SRR14550839_Gut_Microbiota_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/039/SRR14550839/SRR14550839_2.fastq.gz -o SRR14550839_Gut_Microbiota_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/040/SRR14550840/SRR14550840_1.fastq.gz -o SRR14550840_Gut_Microbiota_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/040/SRR14550840/SRR14550840_2.fastq.gz -o SRR14550840_Gut_Microbiota_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/041/SRR14550841/SRR14550841_1.fastq.gz -o SRR14550841_Gut_Microbiota_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/041/SRR14550841/SRR14550841_2.fastq.gz -o SRR14550841_Gut_Microbiota_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/038/SRR14550838/SRR14550838_1.fastq.gz -o SRR14550838_Gut_Microbiota_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/038/SRR14550838/SRR14550838_2.fastq.gz -o SRR14550838_Gut_Microbiota_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/037/SRR14550837/SRR14550837_1.fastq.gz -o SRR14550837_Gut_Microbiota_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/037/SRR14550837/SRR14550837_2.fastq.gz -o SRR14550837_Gut_Microbiota_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/036/SRR14550836/SRR14550836_1.fastq.gz -o SRR14550836_Gut_Microbiota_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/036/SRR14550836/SRR14550836_2.fastq.gz -o SRR14550836_Gut_Microbiota_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/035/SRR14550835/SRR14550835_1.fastq.gz -o SRR14550835_Gut_Microbiota_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/035/SRR14550835/SRR14550835_2.fastq.gz -o SRR14550835_Gut_Microbiota_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/034/SRR14550834/SRR14550834_1.fastq.gz -o SRR14550834_Gut_Microbiota_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/034/SRR14550834/SRR14550834_2.fastq.gz -o SRR14550834_Gut_Microbiota_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/033/SRR14550833/SRR14550833_1.fastq.gz -o SRR14550833_Gut_Microbiota_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/033/SRR14550833/SRR14550833_2.fastq.gz -o SRR14550833_Gut_Microbiota_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/031/SRR14550831/SRR14550831_1.fastq.gz -o SRR14550831_Gut_Microbiota_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/031/SRR14550831/SRR14550831_2.fastq.gz -o SRR14550831_Gut_Microbiota_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/032/SRR14550832/SRR14550832_1.fastq.gz -o SRR14550832_Gut_Microbiota_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/032/SRR14550832/SRR14550832_2.fastq.gz -o SRR14550832_Gut_Microbiota_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/030/SRR14550830/SRR14550830_1.fastq.gz -o SRR14550830_Gut_Microbiota_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR145/030/SRR14550830/SRR14550830_2.fastq.gz -o SRR14550830_Gut_Microbiota_2.fastq.gz
+# next we find the paths for the manifest file
+ls -d "$PWD/"*_1*
+ls -d "$PWD/"*_2*
+# created the manifest and ready to import (note needed PairedEndFastqManifestPhred33V2)
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path li2021_manifest.txt \
+  --output-path li2021_pairend_demux.qza \
+  --input-format PairedEndFastqManifestPhred33V2
+# then we generate the qzv file
+qiime demux summarize \
+  --i-data li2021_pairend_demux.qza \
+  --o-visualization li2021_pairend_demux.qzv
+# then we compute the DADA2 files
+qiime dada2 denoise-single \
+--i-demultiplexed-seqs li2021_single_demux.qza \
+--p-trunc-len 150 \
+--p-trim-left 0 \
+--o-representative-sequences rep-seqs-Li2021.qza \
+--o-table tableLi2021.qza \
+--o-denoising-stats stats-dadaLi2021.qza
+
+# we now move on to the next study
+mkdir liu
+mkdir fastqz
+# import the .gz files
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/049/SRR18650749/SRR18650749_1.fastq.gz -o SRR18650749_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/049/SRR18650749/SRR18650749_2.fastq.gz -o SRR18650749_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/050/SRR18650750/SRR18650750_1.fastq.gz -o SRR18650750_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/050/SRR18650750/SRR18650750_2.fastq.gz -o SRR18650750_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/048/SRR18650748/SRR18650748_1.fastq.gz -o SRR18650748_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/048/SRR18650748/SRR18650748_2.fastq.gz -o SRR18650748_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/047/SRR18650747/SRR18650747_1.fastq.gz -o SRR18650747_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/047/SRR18650747/SRR18650747_2.fastq.gz -o SRR18650747_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/051/SRR18650751/SRR18650751_1.fastq.gz -o SRR18650751_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/051/SRR18650751/SRR18650751_2.fastq.gz -o SRR18650751_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/052/SRR18650752/SRR18650752_1.fastq.gz -o SRR18650752_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/052/SRR18650752/SRR18650752_2.fastq.gz -o SRR18650752_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/045/SRR18650745/SRR18650745_1.fastq.gz -o SRR18650745_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/045/SRR18650745/SRR18650745_2.fastq.gz -o SRR18650745_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/044/SRR18650744/SRR18650744_1.fastq.gz -o SRR18650744_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/044/SRR18650744/SRR18650744_2.fastq.gz -o SRR18650744_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/043/SRR18650743/SRR18650743_1.fastq.gz -o SRR18650743_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/043/SRR18650743/SRR18650743_2.fastq.gz -o SRR18650743_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/041/SRR18650741/SRR18650741_1.fastq.gz -o SRR18650741_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/041/SRR18650741/SRR18650741_2.fastq.gz -o SRR18650741_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/042/SRR18650742/SRR18650742_1.fastq.gz -o SRR18650742_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/042/SRR18650742/SRR18650742_2.fastq.gz -o SRR18650742_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/046/SRR18650746/SRR18650746_1.fastq.gz -o SRR18650746_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/046/SRR18650746/SRR18650746_2.fastq.gz -o SRR18650746_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/039/SRR18650739/SRR18650739_1.fastq.gz -o SRR18650739_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/039/SRR18650739/SRR18650739_2.fastq.gz -o SRR18650739_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/040/SRR18650740/SRR18650740_1.fastq.gz -o SRR18650740_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/040/SRR18650740/SRR18650740_2.fastq.gz -o SRR18650740_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/038/SRR18650738/SRR18650738_1.fastq.gz -o SRR18650738_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/038/SRR18650738/SRR18650738_2.fastq.gz -o SRR18650738_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/037/SRR18650737/SRR18650737_1.fastq.gz -o SRR18650737_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/037/SRR18650737/SRR18650737_2.fastq.gz -o SRR18650737_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/036/SRR18650736/SRR18650736_1.fastq.gz -o SRR18650736_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/036/SRR18650736/SRR18650736_2.fastq.gz -o SRR18650736_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/035/SRR18650735/SRR18650735_1.fastq.gz -o SRR18650735_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/035/SRR18650735/SRR18650735_2.fastq.gz -o SRR18650735_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/034/SRR18650734/SRR18650734_1.fastq.gz -o SRR18650734_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/034/SRR18650734/SRR18650734_2.fastq.gz -o SRR18650734_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/033/SRR18650733/SRR18650733_1.fastq.gz -o SRR18650733_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/033/SRR18650733/SRR18650733_2.fastq.gz -o SRR18650733_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/032/SRR18650732/SRR18650732_1.fastq.gz -o SRR18650732_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/032/SRR18650732/SRR18650732_2.fastq.gz -o SRR18650732_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/030/SRR18650730/SRR18650730_1.fastq.gz -o SRR18650730_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/030/SRR18650730/SRR18650730_2.fastq.gz -o SRR18650730_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/031/SRR18650731/SRR18650731_1.fastq.gz -o SRR18650731_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/031/SRR18650731/SRR18650731_2.fastq.gz -o SRR18650731_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/029/SRR18650729/SRR18650729_1.fastq.gz -o SRR18650729_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/029/SRR18650729/SRR18650729_2.fastq.gz -o SRR18650729_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/028/SRR18650728/SRR18650728_1.fastq.gz -o SRR18650728_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/028/SRR18650728/SRR18650728_2.fastq.gz -o SRR18650728_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/027/SRR18650727/SRR18650727_1.fastq.gz -o SRR18650727_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/027/SRR18650727/SRR18650727_2.fastq.gz -o SRR18650727_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/026/SRR18650726/SRR18650726_1.fastq.gz -o SRR18650726_16S_rRNA_amplicon_was_sequenced_in_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR186/026/SRR18650726/SRR18650726_2.fastq.gz -o SRR18650726_16S_rRNA_amplicon_was_sequenced_in_gut_2.fastq.gz
+# next we find the paths for the manifest file
+ls -d "$PWD/"*_1*
+ls -d "$PWD/"*_2*
+# created the manifest and ready to import (note needed PairedEndFastqManifestPhred33V2)
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path liu_manifest.txt \
+  --output-path liu_pairend_demux.qza \
+  --input-format PairedEndFastqManifestPhred33V2
+# then we generate the qzv file
+qiime demux summarize \
+  --i-data liu_pairend_demux.qza \
+  --o-visualization liu_pairend_demux.qzv
+# then we compute the DADA2 files
+qiime dada2 denoise-single \
+--i-demultiplexed-seqs liu_single_demux.qza \
+--p-trunc-len 150 \
+--p-trim-left 0 \
+--o-representative-sequences rep-seqs-Liu.qza \
+--o-table tableLiu.qza \
+--o-denoising-stats stats-dadaLiu.qza
+
+# we now move on to the next study
+mkdir lyu
+mkdir fastqz
+# import the .gz files
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/057/SRR10177457/SRR10177457_1.fastq.gz -o SRR10177457_Bacterial_community_diversities_of_noble_scallop_s_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/057/SRR10177457/SRR10177457_2.fastq.gz -o SRR10177457_Bacterial_community_diversities_of_noble_scallop_s_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/056/SRR10177456/SRR10177456_1.fastq.gz -o SRR10177456_Bacterial_community_diversities_of_noble_scallop_s_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/056/SRR10177456/SRR10177456_2.fastq.gz -o SRR10177456_Bacterial_community_diversities_of_noble_scallop_s_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/059/SRR10177459/SRR10177459_1.fastq.gz -o SRR10177459_Bacterial_community_diversities_of_noble_scallop_s_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/059/SRR10177459/SRR10177459_2.fastq.gz -o SRR10177459_Bacterial_community_diversities_of_noble_scallop_s_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/055/SRR10177455/SRR10177455_1.fastq.gz -o SRR10177455_Bacterial_community_diversities_of_noble_scallop_s_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/055/SRR10177455/SRR10177455_2.fastq.gz -o SRR10177455_Bacterial_community_diversities_of_noble_scallop_s_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/058/SRR10177458/SRR10177458_1.fastq.gz -o SRR10177458_Bacterial_community_diversities_of_noble_scallop_s_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/058/SRR10177458/SRR10177458_2.fastq.gz -o SRR10177458_Bacterial_community_diversities_of_noble_scallop_s_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/054/SRR10177454/SRR10177454_1.fastq.gz -o SRR10177454_Bacterial_community_diversities_of_noble_scallop_s_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/054/SRR10177454/SRR10177454_2.fastq.gz -o SRR10177454_Bacterial_community_diversities_of_noble_scallop_s_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/052/SRR10177452/SRR10177452_1.fastq.gz -o SRR10177452_Bacterial_community_diversities_of_noble_scallop_s_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/052/SRR10177452/SRR10177452_2.fastq.gz -o SRR10177452_Bacterial_community_diversities_of_noble_scallop_s_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/051/SRR10177451/SRR10177451_1.fastq.gz -o SRR10177451_Bacterial_community_diversities_of_noble_scallop_s_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/051/SRR10177451/SRR10177451_2.fastq.gz -o SRR10177451_Bacterial_community_diversities_of_noble_scallop_s_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/053/SRR10177453/SRR10177453_1.fastq.gz -o SRR10177453_Bacterial_community_diversities_of_noble_scallop_s_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/053/SRR10177453/SRR10177453_2.fastq.gz -o SRR10177453_Bacterial_community_diversities_of_noble_scallop_s_gut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/050/SRR10177450/SRR10177450_1.fastq.gz -o SRR10177450_Bacterial_community_diversities_of_noble_scallop_s_gut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR101/050/SRR10177450/SRR10177450_2.fastq.gz -o SRR10177450_Bacterial_community_diversities_of_noble_scallop_s_gut_2.fastq.gz
+# next we find the paths for the manifest file
+ls -d "$PWD/"*_1*
+ls -d "$PWD/"*_2*
+# created the manifest and ready to import (note needed PairedEndFastqManifestPhred33V2)
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path lyu_manifest.txt \
+  --output-path lyu_pairend_demux.qza \
+  --input-format PairedEndFastqManifestPhred33V2
+# then we generate the qzv file
+qiime demux summarize \
+  --i-data lyu_pairend_demux.qza \
+  --o-visualization lyu_pairend_demux.qzv
+# then we compute the DADA2 files
+qiime dada2 denoise-single \
+--i-demultiplexed-seqs lyu_single_demux.qza \
+--p-trunc-len 150 \
+--p-trim-left 0 \
+--o-representative-sequences rep-seqs-Lyu.qza \
+--o-table tableLyu.qza \
+--o-denoising-stats stats-dadaLyu.qza
+
+# we now move on to the next study
+mkdir magagnoli
+mkdir fastq
+# import the .gz files
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/014/SRR17715614/SRR17715614_1.fastq.gz -o SRR17715614_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/014/SRR17715614/SRR17715614_2.fastq.gz -o SRR17715614_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/015/SRR17715615/SRR17715615_1.fastq.gz -o SRR17715615_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/015/SRR17715615/SRR17715615_2.fastq.gz -o SRR17715615_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/017/SRR17715617/SRR17715617_1.fastq.gz -o SRR17715617_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/017/SRR17715617/SRR17715617_2.fastq.gz -o SRR17715617_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/013/SRR17715613/SRR17715613_1.fastq.gz -o SRR17715613_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/013/SRR17715613/SRR17715613_2.fastq.gz -o SRR17715613_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/018/SRR17715618/SRR17715618_1.fastq.gz -o SRR17715618_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/018/SRR17715618/SRR17715618_2.fastq.gz -o SRR17715618_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/016/SRR17715616/SRR17715616_1.fastq.gz -o SRR17715616_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/016/SRR17715616/SRR17715616_2.fastq.gz -o SRR17715616_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/011/SRR17715611/SRR17715611_1.fastq.gz -o SRR17715611_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/011/SRR17715611/SRR17715611_2.fastq.gz -o SRR17715611_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/012/SRR17715612/SRR17715612_1.fastq.gz -o SRR17715612_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/012/SRR17715612/SRR17715612_2.fastq.gz -o SRR17715612_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/009/SRR17715609/SRR17715609_1.fastq.gz -o SRR17715609_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/009/SRR17715609/SRR17715609_2.fastq.gz -o SRR17715609_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/010/SRR17715610/SRR17715610_1.fastq.gz -o SRR17715610_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/010/SRR17715610/SRR17715610_2.fastq.gz -o SRR17715610_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/008/SRR17715608/SRR17715608_1.fastq.gz -o SRR17715608_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/008/SRR17715608/SRR17715608_2.fastq.gz -o SRR17715608_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/007/SRR17715607/SRR17715607_1.fastq.gz -o SRR17715607_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/007/SRR17715607/SRR17715607_2.fastq.gz -o SRR17715607_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/003/SRR17715603/SRR17715603_1.fastq.gz -o SRR17715603_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/003/SRR17715603/SRR17715603_2.fastq.gz -o SRR17715603_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/005/SRR17715605/SRR17715605_1.fastq.gz -o SRR17715605_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/005/SRR17715605/SRR17715605_2.fastq.gz -o SRR17715605_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/004/SRR17715604/SRR17715604_1.fastq.gz -o SRR17715604_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/004/SRR17715604/SRR17715604_2.fastq.gz -o SRR17715604_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/006/SRR17715606/SRR17715606_1.fastq.gz -o SRR17715606_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/006/SRR17715606/SRR17715606_2.fastq.gz -o SRR17715606_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/002/SRR17715602/SRR17715602_1.fastq.gz -o SRR17715602_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/002/SRR17715602/SRR17715602_2.fastq.gz -o SRR17715602_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/001/SRR17715601/SRR17715601_1.fastq.gz -o SRR17715601_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/001/SRR17715601/SRR17715601_2.fastq.gz -o SRR17715601_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/000/SRR17715600/SRR17715600_1.fastq.gz -o SRR17715600_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/000/SRR17715600/SRR17715600_2.fastq.gz -o SRR17715600_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/098/SRR17715598/SRR17715598_1.fastq.gz -o SRR17715598_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/098/SRR17715598/SRR17715598_2.fastq.gz -o SRR17715598_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/099/SRR17715599/SRR17715599_1.fastq.gz -o SRR17715599_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/099/SRR17715599/SRR17715599_2.fastq.gz -o SRR17715599_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/097/SRR17715597/SRR17715597_1.fastq.gz -o SRR17715597_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/097/SRR17715597/SRR17715597_2.fastq.gz -o SRR17715597_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/096/SRR17715596/SRR17715596_1.fastq.gz -o SRR17715596_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/096/SRR17715596/SRR17715596_2.fastq.gz -o SRR17715596_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/095/SRR17715595/SRR17715595_1.fastq.gz -o SRR17715595_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/095/SRR17715595/SRR17715595_2.fastq.gz -o SRR17715595_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/093/SRR17715593/SRR17715593_1.fastq.gz -o SRR17715593_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/093/SRR17715593/SRR17715593_2.fastq.gz -o SRR17715593_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/094/SRR17715594/SRR17715594_1.fastq.gz -o SRR17715594_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/094/SRR17715594/SRR17715594_2.fastq.gz -o SRR17715594_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/092/SRR17715592/SRR17715592_1.fastq.gz -o SRR17715592_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/092/SRR17715592/SRR17715592_2.fastq.gz -o SRR17715592_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/091/SRR17715591/SRR17715591_1.fastq.gz -o SRR17715591_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/091/SRR17715591/SRR17715591_2.fastq.gz -o SRR17715591_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/090/SRR17715590/SRR17715590_1.fastq.gz -o SRR17715590_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/090/SRR17715590/SRR17715590_2.fastq.gz -o SRR17715590_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/089/SRR17715589/SRR17715589_1.fastq.gz -o SRR17715589_16S-metagenome_of_honeybee_gut_soil_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR177/089/SRR17715589/SRR17715589_2.fastq.gz -o SRR17715589_16S-metagenome_of_honeybee_gut_soil_2.fastq.gz
+# next we find the paths for the manifest file
+ls -d "$PWD/"*_1*
+ls -d "$PWD/"*_2*
+# created the manifest and ready to import (note needed PairedEndFastqManifestPhred33V2)
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path magagnoli_manifest.txt \
+  --output-path magagnoli_pairend_demux.qza \
+  --input-format PairedEndFastqManifestPhred33V2
+# then we generate the qzv file
+qiime demux summarize \
+  --i-data magagnoli_pairend_demux.qza \
+  --o-visualization magagnoli_pairend_demux.qzv
+# then we compute the DADA2 files
+qiime dada2 denoise-single \
+--i-demultiplexed-seqs magagnoli_single_demux.qza \
+--p-trunc-len 150 \
+--p-trim-left 0 \
+--o-representative-sequences rep-seqs-Magagnoli.qza \
+--o-table tableMagagnoli.qza \
+--o-denoising-stats stats-dadaMagagnoli.qza
+
+# we now move on to the next study
+mkdir mays
+mkdir fastqz
+# import the .gz files
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/036/SRR14412236/SRR14412236_1.fastq.gz -o SRR14412236_16S_targeted_sequencing_of_H._comalensis_captive_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/036/SRR14412236/SRR14412236_2.fastq.gz -o SRR14412236_16S_targeted_sequencing_of_H._comalensis_captive_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/040/SRR14412240/SRR14412240_1.fastq.gz -o SRR14412240_16S_targeted_sequencing_of_H._comalensis_captive_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/040/SRR14412240/SRR14412240_2.fastq.gz -o SRR14412240_16S_targeted_sequencing_of_H._comalensis_captive_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/041/SRR14412241/SRR14412241_1.fastq.gz -o SRR14412241_16S_targeted_sequencing_of_H._comalensis_captive_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/041/SRR14412241/SRR14412241_2.fastq.gz -o SRR14412241_16S_targeted_sequencing_of_H._comalensis_captive_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/039/SRR14412239/SRR14412239_1.fastq.gz -o SRR14412239_16S_targeted_sequencing_of_H._comalensis_captive_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/039/SRR14412239/SRR14412239_2.fastq.gz -o SRR14412239_16S_targeted_sequencing_of_H._comalensis_captive_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/038/SRR14412238/SRR14412238_1.fastq.gz -o SRR14412238_16S_targeted_sequencing_of_H._comalensis_captive_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/038/SRR14412238/SRR14412238_2.fastq.gz -o SRR14412238_16S_targeted_sequencing_of_H._comalensis_captive_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/037/SRR14412237/SRR14412237_1.fastq.gz -o SRR14412237_16S_targeted_sequencing_of_H._comalensis_captive_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/037/SRR14412237/SRR14412237_2.fastq.gz -o SRR14412237_16S_targeted_sequencing_of_H._comalensis_captive_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/034/SRR14412234/SRR14412234_1.fastq.gz -o SRR14412234_16S_targeted_sequencing_of_H._comalensis_captive_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/034/SRR14412234/SRR14412234_2.fastq.gz -o SRR14412234_16S_targeted_sequencing_of_H._comalensis_captive_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/031/SRR14412231/SRR14412231_1.fastq.gz -o SRR14412231_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/031/SRR14412231/SRR14412231_2.fastq.gz -o SRR14412231_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/035/SRR14412235/SRR14412235_1.fastq.gz -o SRR14412235_16S_targeted_sequencing_of_H._comalensis_captive_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/035/SRR14412235/SRR14412235_2.fastq.gz -o SRR14412235_16S_targeted_sequencing_of_H._comalensis_captive_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/030/SRR14412230/SRR14412230_1.fastq.gz -o SRR14412230_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/030/SRR14412230/SRR14412230_2.fastq.gz -o SRR14412230_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/029/SRR14412229/SRR14412229_1.fastq.gz -o SRR14412229_16S_targeted_sequencing_of_H._comalensis_captive_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/029/SRR14412229/SRR14412229_2.fastq.gz -o SRR14412229_16S_targeted_sequencing_of_H._comalensis_captive_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/032/SRR14412232/SRR14412232_1.fastq.gz -o SRR14412232_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/032/SRR14412232/SRR14412232_2.fastq.gz -o SRR14412232_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/026/SRR14412226/SRR14412226_1.fastq.gz -o SRR14412226_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/026/SRR14412226/SRR14412226_2.fastq.gz -o SRR14412226_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/018/SRR14412218/SRR14412218_1.fastq.gz -o SRR14412218_16S_targeted_sequencing_of_H._comalensis_captive_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/018/SRR14412218/SRR14412218_2.fastq.gz -o SRR14412218_16S_targeted_sequencing_of_H._comalensis_captive_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/025/SRR14412225/SRR14412225_1.fastq.gz -o SRR14412225_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/025/SRR14412225/SRR14412225_2.fastq.gz -o SRR14412225_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/017/SRR14412217/SRR14412217_1.fastq.gz -o SRR14412217_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/017/SRR14412217/SRR14412217_2.fastq.gz -o SRR14412217_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/016/SRR14412216/SRR14412216_1.fastq.gz -o SRR14412216_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/016/SRR14412216/SRR14412216_2.fastq.gz -o SRR14412216_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/015/SRR14412215/SRR14412215_1.fastq.gz -o SRR14412215_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/015/SRR14412215/SRR14412215_2.fastq.gz -o SRR14412215_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/014/SRR14412214/SRR14412214_1.fastq.gz -o SRR14412214_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/014/SRR14412214/SRR14412214_2.fastq.gz -o SRR14412214_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/013/SRR14412213/SRR14412213_1.fastq.gz -o SRR14412213_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/013/SRR14412213/SRR14412213_2.fastq.gz -o SRR14412213_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/011/SRR14412211/SRR14412211_1.fastq.gz -o SRR14412211_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/011/SRR14412211/SRR14412211_2.fastq.gz -o SRR14412211_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/012/SRR14412212/SRR14412212_1.fastq.gz -o SRR14412212_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/012/SRR14412212/SRR14412212_2.fastq.gz -o SRR14412212_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/010/SRR14412210/SRR14412210_1.fastq.gz -o SRR14412210_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/010/SRR14412210/SRR14412210_2.fastq.gz -o SRR14412210_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/008/SRR14412208/SRR14412208_1.fastq.gz -o SRR14412208_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/008/SRR14412208/SRR14412208_2.fastq.gz -o SRR14412208_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/009/SRR14412209/SRR14412209_1.fastq.gz -o SRR14412209_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/009/SRR14412209/SRR14412209_2.fastq.gz -o SRR14412209_16S_targeted_sequencing_of_H._comalensis_Wild_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/005/SRR14412205/SRR14412205_1.fastq.gz -o SRR14412205_16S_targeted_sequencing_of_H._comalensis_captive_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/005/SRR14412205/SRR14412205_2.fastq.gz -o SRR14412205_16S_targeted_sequencing_of_H._comalensis_captive_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/003/SRR14412203/SRR14412203_1.fastq.gz -o SRR14412203_16S_targeted_sequencing_of_H._comalensis_captive_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/003/SRR14412203/SRR14412203_2.fastq.gz -o SRR14412203_16S_targeted_sequencing_of_H._comalensis_captive_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/002/SRR14412202/SRR14412202_1.fastq.gz -o SRR14412202_16S_targeted_sequencing_of_H._comalensis_captive_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/002/SRR14412202/SRR14412202_2.fastq.gz -o SRR14412202_16S_targeted_sequencing_of_H._comalensis_captive_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/004/SRR14412204/SRR14412204_1.fastq.gz -o SRR14412204_16S_targeted_sequencing_of_H._comalensis_captive_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/004/SRR14412204/SRR14412204_2.fastq.gz -o SRR14412204_16S_targeted_sequencing_of_H._comalensis_captive_beetle_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/001/SRR14412201/SRR14412201_1.fastq.gz -o SRR14412201_16S_targeted_sequencing_of_H._comalensis_captive_beetle_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR144/001/SRR14412201/SRR14412201_2.fastq.gz -o SRR14412201_16S_targeted_sequencing_of_H._comalensis_captive_beetle_2.fastq.gz
+# next we find the paths for the manifest file
+ls -d "$PWD/"*_1*
+ls -d "$PWD/"*_2*
+# created the manifest and ready to import (note needed PairedEndFastqManifestPhred33V2)
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path mays_manifest.txt \
+  --output-path mays_pairend_demux.qza \
+  --input-format PairedEndFastqManifestPhred33V2
+# then we generate the qzv file
+qiime demux summarize \
+  --i-data mays_pairend_demux.qza \
+  --o-visualization mays_pairend_demux.qzv
+# low quality reverse reads but the forward reads were fine, because of this we will generate 
+# a single dada2 read on this on the pairend import
+qiime dada2 denoise-single \
+--i-demultiplexed-seqs mays_pairend_demux.qza \
+--p-trunc-len 150 \
+--p-trim-left 0 \
+--o-representative-sequences rep-seqs-mays.qza \
+--o-table table-mays.qza \
+--o-denoising-stats stats-mays.qza
+
+# we now move on to the next study
+mkdir shelomi
+mkdir fastqz
+# import the .gz files
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/005/SRR11191505/SRR11191505.fastq.gz -o SRR11191505_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_12_midgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/005/SRR11191505/SRR11191505_1.fastq.gz -o SRR11191505_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_12_midgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/005/SRR11191505/SRR11191505_2.fastq.gz -o SRR11191505_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_12_midgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/003/SRR11191503/SRR11191503_1.fastq.gz -o SRR11191503_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_13_midgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/003/SRR11191503/SRR11191503_2.fastq.gz -o SRR11191503_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_13_midgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/001/SRR11191501/SRR11191501.fastq.gz -o SRR11191501_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_14_midgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/001/SRR11191501/SRR11191501_1.fastq.gz -o SRR11191501_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_14_midgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/001/SRR11191501/SRR11191501_2.fastq.gz -o SRR11191501_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_14_midgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/000/SRR11191500/SRR11191500_1.fastq.gz -o SRR11191500_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_15_hindgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/000/SRR11191500/SRR11191500_2.fastq.gz -o SRR11191500_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_15_hindgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/004/SRR11191504/SRR11191504.fastq.gz -o SRR11191504_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_13_hindgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/004/SRR11191504/SRR11191504_1.fastq.gz -o SRR11191504_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_13_hindgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/004/SRR11191504/SRR11191504_2.fastq.gz -o SRR11191504_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_13_hindgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/002/SRR11191502/SRR11191502.fastq.gz -o SRR11191502_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_14_hindgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/002/SRR11191502/SRR11191502_1.fastq.gz -o SRR11191502_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_14_hindgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/002/SRR11191502/SRR11191502_2.fastq.gz -o SRR11191502_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_14_hindgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/098/SRR11191498/SRR11191498.fastq.gz -o SRR11191498_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_17_hindgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/098/SRR11191498/SRR11191498_1.fastq.gz -o SRR11191498_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_17_hindgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/098/SRR11191498/SRR11191498_2.fastq.gz -o SRR11191498_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_17_hindgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/097/SRR11191497/SRR11191497.fastq.gz -o SRR11191497_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_17_midgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/097/SRR11191497/SRR11191497_1.fastq.gz -o SRR11191497_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_17_midgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/097/SRR11191497/SRR11191497_2.fastq.gz -o SRR11191497_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_17_midgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/094/SRR11191494/SRR11191494.fastq.gz -o SRR11191494_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_18_midgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/094/SRR11191494/SRR11191494_1.fastq.gz -o SRR11191494_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_18_midgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/094/SRR11191494/SRR11191494_2.fastq.gz -o SRR11191494_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_18_midgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/096/SRR11191496/SRR11191496.fastq.gz -o SRR11191496_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_18_hindgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/096/SRR11191496/SRR11191496_1.fastq.gz -o SRR11191496_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_18_hindgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/096/SRR11191496/SRR11191496_2.fastq.gz -o SRR11191496_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_18_hindgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/093/SRR11191493/SRR11191493.fastq.gz -o SRR11191493_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_19_hindgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/093/SRR11191493/SRR11191493_1.fastq.gz -o SRR11191493_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_19_hindgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/093/SRR11191493/SRR11191493_2.fastq.gz -o SRR11191493_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_19_hindgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/099/SRR11191499/SRR11191499.fastq.gz -o SRR11191499_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_15_midgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/099/SRR11191499/SRR11191499_1.fastq.gz -o SRR11191499_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_15_midgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/099/SRR11191499/SRR11191499_2.fastq.gz -o SRR11191499_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_15_midgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/091/SRR11191491/SRR11191491.fastq.gz -o SRR11191491_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_21_hindgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/091/SRR11191491/SRR11191491_1.fastq.gz -o SRR11191491_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_21_hindgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/091/SRR11191491/SRR11191491_2.fastq.gz -o SRR11191491_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_21_hindgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/092/SRR11191492/SRR11191492.fastq.gz -o SRR11191492_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_19_midgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/092/SRR11191492/SRR11191492_1.fastq.gz -o SRR11191492_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_19_midgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/092/SRR11191492/SRR11191492_2.fastq.gz -o SRR11191492_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_19_midgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/090/SRR11191490/SRR11191490_1.fastq.gz -o SRR11191490_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_21_midgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/090/SRR11191490/SRR11191490_2.fastq.gz -o SRR11191490_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_21_midgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/089/SRR11191489/SRR11191489_1.fastq.gz -o SRR11191489_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_2_hindgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/089/SRR11191489/SRR11191489_2.fastq.gz -o SRR11191489_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_2_hindgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/088/SRR11191488/SRR11191488.fastq.gz -o SRR11191488_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_22_midgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/088/SRR11191488/SRR11191488_1.fastq.gz -o SRR11191488_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_22_midgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/088/SRR11191488/SRR11191488_2.fastq.gz -o SRR11191488_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_22_midgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/087/SRR11191487/SRR11191487.fastq.gz -o SRR11191487_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_3_hindgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/087/SRR11191487/SRR11191487_1.fastq.gz -o SRR11191487_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_3_hindgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/087/SRR11191487/SRR11191487_2.fastq.gz -o SRR11191487_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_3_hindgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/086/SRR11191486/SRR11191486.fastq.gz -o SRR11191486_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_3_midgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/086/SRR11191486/SRR11191486_1.fastq.gz -o SRR11191486_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_3_midgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/086/SRR11191486/SRR11191486_2.fastq.gz -o SRR11191486_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_3_midgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/085/SRR11191485/SRR11191485.fastq.gz -o SRR11191485_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_4_hindgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/085/SRR11191485/SRR11191485_1.fastq.gz -o SRR11191485_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_4_hindgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/085/SRR11191485/SRR11191485_2.fastq.gz -o SRR11191485_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_4_hindgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/083/SRR11191483/SRR11191483.fastq.gz -o SRR11191483_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_4_midgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/083/SRR11191483/SRR11191483_1.fastq.gz -o SRR11191483_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_4_midgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/083/SRR11191483/SRR11191483_2.fastq.gz -o SRR11191483_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_4_midgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/080/SRR11191480/SRR11191480.fastq.gz -o SRR11191480_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_5_midgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/080/SRR11191480/SRR11191480_1.fastq.gz -o SRR11191480_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_5_midgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/080/SRR11191480/SRR11191480_2.fastq.gz -o SRR11191480_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_5_midgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/081/SRR11191481/SRR11191481.fastq.gz -o SRR11191481_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_5_hindgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/081/SRR11191481/SRR11191481_1.fastq.gz -o SRR11191481_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_5_hindgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/081/SRR11191481/SRR11191481_2.fastq.gz -o SRR11191481_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_5_hindgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/079/SRR11191479/SRR11191479.fastq.gz -o SRR11191479_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_6_hindgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/079/SRR11191479/SRR11191479_1.fastq.gz -o SRR11191479_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_6_hindgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/079/SRR11191479/SRR11191479_2.fastq.gz -o SRR11191479_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_6_hindgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/078/SRR11191478/SRR11191478.fastq.gz -o SRR11191478_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_6_midgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/078/SRR11191478/SRR11191478_1.fastq.gz -o SRR11191478_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_6_midgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/078/SRR11191478/SRR11191478_2.fastq.gz -o SRR11191478_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_6_midgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/077/SRR11191477/SRR11191477_1.fastq.gz -o SRR11191477_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_1_hindgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/077/SRR11191477/SRR11191477_2.fastq.gz -o SRR11191477_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_1_hindgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/076/SRR11191476/SRR11191476_1.fastq.gz -o SRR11191476_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_1_midgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/076/SRR11191476/SRR11191476_2.fastq.gz -o SRR11191476_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_1_midgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/068/SRR11191468/SRR11191468_1.fastq.gz -o SRR11191468_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_11_midgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/068/SRR11191468/SRR11191468_2.fastq.gz -o SRR11191468_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_11_midgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/069/SRR11191469/SRR11191469.fastq.gz -o SRR11191469_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_11_hindgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/069/SRR11191469/SRR11191469_1.fastq.gz -o SRR11191469_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_11_hindgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/069/SRR11191469/SRR11191469_2.fastq.gz -o SRR11191469_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_11_hindgut_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/067/SRR11191467/SRR11191467.fastq.gz -o SRR11191467_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_12_hindgut.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/067/SRR11191467/SRR11191467_1.fastq.gz -o SRR11191467_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_12_hindgut_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR111/067/SRR11191467/SRR11191467_2.fastq.gz -o SRR11191467_16S_rDNA_metagenome_of_Oryctes_rhinoceros_larva_12_hindgut_2.fastq.gz
+# next we find the paths for the manifest file
+ls -d "$PWD/"*_1*
+ls -d "$PWD/"*_2*
+# created the manifest and ready to import (note needed PairedEndFastqManifestPhred33V2)
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path shelomi_manifest.txt \
+  --output-path shelomi_pairend_demux.qza \
+  --input-format PairedEndFastqManifestPhred33V2
+# then we generate the qzv file
+qiime demux summarize \
+  --i-data shelomi_pairend_demux.qza \
+  --o-visualization shelomi_pairend_demux.qzv
+# then we compute the DADA2 files
+qiime dada2 denoise-single \
+--i-demultiplexed-seqs shelomi_single_demux.qza \
+--p-trunc-len 150 \
+--p-trim-left 0 \
+--o-representative-sequences rep-seqs-shelomi.qza \
+--o-table table-shelomi.qza \
+--o-denoising-stats stats-shelomi.qza
+
+# we now move on to the next study
+mkdir guerrero
+mkdir fastqz
+# import the .gz files
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/007/SRR4417697/SRR4417697_1.fastq.gz -o SRR4417697_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_Napier_grass_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/007/SRR4417697/SRR4417697_2.fastq.gz -o SRR4417697_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_Napier_grass_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/003/SRR4417693/SRR4417693_1.fastq.gz -o SRR4417693_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_corn_stover_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/003/SRR4417693/SRR4417693_2.fastq.gz -o SRR4417693_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_corn_stover_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/004/SRR4417694/SRR4417694_1.fastq.gz -o SRR4417694_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_corn_stover_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/004/SRR4417694/SRR4417694_2.fastq.gz -o SRR4417694_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_corn_stover_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/008/SRR4417698/SRR4417698_1.fastq.gz -o SRR4417698_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_Napier_grass_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/008/SRR4417698/SRR4417698_2.fastq.gz -o SRR4417698_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_Napier_grass_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/005/SRR4417695/SRR4417695_1.fastq.gz -o SRR4417695_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_corn_stover_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/005/SRR4417695/SRR4417695_2.fastq.gz -o SRR4417695_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_corn_stover_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/006/SRR4417696/SRR4417696_1.fastq.gz -o SRR4417696_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_Napier_grass_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/006/SRR4417696/SRR4417696_2.fastq.gz -o SRR4417696_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_Napier_grass_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/009/SRR4417699/SRR4417699_1.fastq.gz -o SRR4417699_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_cottonseed_meal_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/009/SRR4417699/SRR4417699_2.fastq.gz -o SRR4417699_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_cottonseed_meal_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/001/SRR4417701/SRR4417701_1.fastq.gz -o SRR4417701_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_cottonseed_meal_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/001/SRR4417701/SRR4417701_2.fastq.gz -o SRR4417701_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_cottonseed_meal_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/000/SRR4417700/SRR4417700_1.fastq.gz -o SRR4417700_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_cottonseed_meal_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR441/000/SRR4417700/SRR4417700_2.fastq.gz -o SRR4417700_16S_rRNA_amplicons_of_Anthonomus_grandis_gut_microbiome_fed_with_cottonseed_meal_2.fastq.gz
+# next we find the paths for the manifest file
+ls -d "$PWD/"*_1*
+ls -d "$PWD/"*_2*
+# created the manifest and ready to import (note needed PairedEndFastqManifestPhred33V2)
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path guerrero_manifest.txt \
+  --output-path guerrero_pairend_demux.qza \
+  --input-format PairedEndFastqManifestPhred33V2
+# then we generate the qzv file
+qiime demux summarize \
+  --i-data guerrero_pairend_demux.qza \
+  --o-visualization guerrero_pairend_demux.qzv
+# quality is bad for both reads, but especially the reverse reads. Therefore we run only
+# the forward read using single dada2 and note that the quality is bad
+qiime dada2 denoise-single \
+--i-demultiplexed-seqs guerrero_pairend_demux.qza \
+--p-trunc-len 150 \
+--p-trim-left 0 \
+--o-representative-sequences rep-seqs-single-guerrero.qza \
+--o-table table-single-guerrero.qza \
+--o-denoising-stats stats-single-guerrero.qza
+
+# we now move on to the next study
+mkdir muhammad
+mkdir fastqz
+# import the .gz files
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/005/SRR5648195/SRR5648195.fastq.gz -o SRR5648195_High_throught_sequencing-microbiome-_Rf_larvae_Cocos_nucifera.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/002/SRR5648192/SRR5648192.fastq.gz -o SRR5648192_High_throught_sequencing-microbiome-_Rf_larvae_Cocos_nucifera.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/000/SRR5648190/SRR5648190.fastq.gz -o SRR5648190_High_throught_sequencing-microbiome-Rf_pupae_Cocos_nucifera.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/001/SRR5648191/SRR5648191.fastq.gz -o SRR5648191_High_throught_sequencing-microbiome-Rf_pupae_Cocos_nucifera.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/004/SRR5648194/SRR5648194.fastq.gz -o SRR5648194_High_throught_sequencing-microbiome-Rf_larvae-Cocos_nucifera.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/003/SRR5648193/SRR5648193.fastq.gz -o SRR5648193_High_throught_sequencing-microbiome-Rf_pupae_Cocos_nucifera.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/009/SRR5648189/SRR5648189.fastq.gz -o SRR5648189_High_throught_sequencing-microbiome-Rf_adult_male_Cocos_nucifera.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/007/SRR5648187/SRR5648187.fastq.gz -o SRR5648187_High_throught_sequencing-microbiome-Rf_adult_female_Cocos_nucifera.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/006/SRR5648186/SRR5648186.fastq.gz -o SRR5648186_High_throught_sequencing-microbiome-Rf_adult_female_Cocos_nucifera.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/008/SRR5648188/SRR5648188.fastq.gz -o SRR5648188_High_throught_sequencing-microbiome-Rf_adult_male_Cocos_nucifera.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/005/SRR5648185/SRR5648185.fastq.gz -o SRR5648185_High_throught_sequencing-microbiome-_Rf_larvae_sugarcane.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/004/SRR5648184/SRR5648184.fastq.gz -o SRR5648184_High_throught_sequencing-microbiome-_Rf_larvae_sugarcane.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/003/SRR5648183/SRR5648183.fastq.gz -o SRR5648183_High_throught_sequencing-microbiome-_Rf_larvae_sugarcane.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/000/SRR5648180/SRR5648180.fastq.gz -o SRR5648180_High_throught_sequencing-microbiome-_Rf_larvae_sugarcane.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/002/SRR5648182/SRR5648182.fastq.gz -o SRR5648182_High_throught_sequencing-microbiome-_Rf_larvae_sugarcane.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/009/SRR5648179/SRR5648179.fastq.gz -o SRR5648179_High_throught_sequencing-microbiome-_Rf_larvae_Phoenix_canariensis.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/001/SRR5648181/SRR5648181.fastq.gz -o SRR5648181_High_throught_sequencing-microbiome-_Rf_larvae_sugarcane.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/008/SRR5648178/SRR5648178.fastq.gz -o SRR5648178_High_throught_sequencing-microbiome-_Rf_larvae_sugarcane.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/007/SRR5648177/SRR5648177.fastq.gz -o SRR5648177_High_throught_sequencing-microbiome-_Rf_larvae_Phoenix_canariensis.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/006/SRR5648176/SRR5648176.fastq.gz -o SRR5648176_High_throught_sequencing-microbiome-_Rf_larvae_Phoenix_canariensis.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/005/SRR5648175/SRR5648175.fastq.gz -o SRR5648175_High_throught_sequencing-microbiome-_Rf_larvae_sugarcane.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR564/004/SRR5648174/SRR5648174.fastq.gz -o SRR5648174_High_throught_sequencing-microbiome-_Rf_larvae_sugarcane.fastq.gz
+# next we find the paths for the manifest file
+ls -d "$PWD/"*
+# created the manifest and ready to import
+qiime tools import \
+  --type 'SampleData[SequencesWithQuality]' \
+  --input-path muhammad_manifest.txt \
+  --output-path muhammad_single_demux.qza \
+  --input-format SingleEndFastqManifestPhred33V2
+# then we generate the qzv file
+qiime demux summarize \
+  --i-data muhammad_single_demux.qza \
+  --o-visualization muhammad_single_demux.qzv
+# then we compute the DADA2 files
+qiime dada2 denoise-single \
+--i-demultiplexed-seqs muhammad_single_demux.qza \
+--p-trunc-len 150 \
+--p-trim-left 0 \
+--o-representative-sequences rep-seqs-muhammad.qza \
+--o-table table-muhammad.qza \
+--o-denoising-stats stats-muhammad.qza
+
+# we now move on to the next study
+mkdir serrano
+mkdir fastqz
+# import the .gz files
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/006/ERR3276386/ERR3276386.fastq.gz -o ERR3276386_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/004/ERR3276384/ERR3276384.fastq.gz -o ERR3276384_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/003/ERR3276383/ERR3276383.fastq.gz -o ERR3276383_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/005/ERR3276385/ERR3276385.fastq.gz -o ERR3276385_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/008/ERR3276388/ERR3276388.fastq.gz -o ERR3276388_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/007/ERR3276387/ERR3276387.fastq.gz -o ERR3276387_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/009/ERR3276389/ERR3276389.fastq.gz -o ERR3276389_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/000/ERR3276390/ERR3276390.fastq.gz -o ERR3276390_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/002/ERR3276392/ERR3276392.fastq.gz -o ERR3276392_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/001/ERR3276391/ERR3276391.fastq.gz -o ERR3276391_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/003/ERR3276393/ERR3276393.fastq.gz -o ERR3276393_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/004/ERR3276394/ERR3276394.fastq.gz -o ERR3276394_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/005/ERR3276395/ERR3276395.fastq.gz -o ERR3276395_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/006/ERR3276396/ERR3276396.fastq.gz -o ERR3276396_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/007/ERR3276397/ERR3276397.fastq.gz -o ERR3276397_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/009/ERR3276399/ERR3276399.fastq.gz -o ERR3276399_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/000/ERR3276400/ERR3276400.fastq.gz -o ERR3276400_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/008/ERR3276398/ERR3276398.fastq.gz -o ERR3276398_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/002/ERR3276402/ERR3276402.fastq.gz -o ERR3276402_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/001/ERR3276401/ERR3276401.fastq.gz -o ERR3276401_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/004/ERR3276404/ERR3276404.fastq.gz -o ERR3276404_Illumina_MiSeq_sequencing.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR327/003/ERR3276403/ERR3276403.fastq.gz -o ERR3276403_Illumina_MiSeq_sequencing.fastq.gz
+# next we find the paths for the manifest file
+ls -d "$PWD/"*
+# created the manifest and ready to import
+qiime tools import \
+  --type 'SampleData[SequencesWithQuality]' \
+  --input-path serrano_manifest.txt \
+  --output-path serrano_single_demux.qza \
+  --input-format SingleEndFastqManifestPhred33V2
+# then we generate the qzv file
+qiime demux summarize \
+  --i-data serrano_single_demux.qza \
+  --o-visualization serrano_single_demux.qzv
+# then we compute the DADA2 files
+qiime dada2 denoise-single \
+--i-demultiplexed-seqs serrano_single_demux.qza \
+--p-trunc-len 150 \
+--p-trim-left 0 \
+--o-representative-sequences rep-seqs-single-serrano.qza \
+--o-table table-single-serrano.qza \
+--o-denoising-stats stats-single-serrano.qza
+
+# we now move on to the next study
+mkdir chen
+mkdir fastqz
+# import the .gz files
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR119/004/SRR11941304/SRR11941304.fastq.gz -o SRR11941304_Gut_16S_01.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR119/001/SRR11941301/SRR11941301.fastq.gz -o SRR11941301_Gut_16S_12.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR119/000/SRR11941300/SRR11941300.fastq.gz -o SRR11941300_Gut_16S_13.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR119/002/SRR11941302/SRR11941302.fastq.gz -o SRR11941302_Gut_16S_11.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR119/003/SRR11941303/SRR11941303.fastq.gz -o SRR11941303_Gut_16S_02.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR119/099/SRR11941299/SRR11941299.fastq.gz -o SRR11941299_Gut_16S_14.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR119/098/SRR11941298/SRR11941298.fastq.gz -o SRR11941298_Gut_16S_15.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR119/095/SRR11941295/SRR11941295.fastq.gz -o SRR11941295_Gut_16S_05.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR119/096/SRR11941296/SRR11941296.fastq.gz -o SRR11941296_Gut_16S_04.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR119/094/SRR11941294/SRR11941294.fastq.gz -o SRR11941294_Gut_16S_06.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR119/097/SRR11941297/SRR11941297.fastq.gz -o SRR11941297_Gut_16S_03.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR119/093/SRR11941293/SRR11941293.fastq.gz -o SRR11941293_Gut_16S_07.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR119/092/SRR11941292/SRR11941292.fastq.gz -o SRR11941292_Gut_16S_08.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR119/090/SRR11941290/SRR11941290.fastq.gz -o SRR11941290_Gut_16S_10.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR119/091/SRR11941291/SRR11941291.fastq.gz -o SRR11941291_Gut_16S_09.fastq.gz
+# next we find the paths for the manifest file
+ls -d "$PWD/"*
+# created the manifest and ready to import
+qiime tools import \
+  --type 'SampleData[SequencesWithQuality]' \
+  --input-path chen_manifest.txt \
+  --output-path chen_single_demux.qza \
+  --input-format SingleEndFastqManifestPhred33V2
+# then we generate the qzv file
+qiime demux summarize \
+  --i-data chen_single_demux.qza \
+  --o-visualization chen_single_demux.qzv
+# then we compute the DADA2 files
+qiime dada2 denoise-single \
+--i-demultiplexed-seqs chen_single_demux.qza \
+--p-trunc-len 150 \
+--p-trim-left 0 \
+--o-representative-sequences rep-seqs-single-chen.qza \
+--o-table table-single-chen.qza \
+--o-denoising-stats stats-single-chen.qza
+
+# we now move on to the next study
+mkdir wang
+mkdir fastqz
+# import the .gz files
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/004/SRR10688404/SRR10688404_1.fastq.gz -o SRR10688404_DNA-Seq_of_environmental_metagenomes_gut_metagenome_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/004/SRR10688404/SRR10688404_2.fastq.gz -o SRR10688404_DNA-Seq_of_environmental_metagenomes_gut_metagenome_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/005/SRR10688405/SRR10688405_1.fastq.gz -o SRR10688405_DNA-Seq_of_environmental_metagenomes_gut_metagenome_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/005/SRR10688405/SRR10688405_2.fastq.gz -o SRR10688405_DNA-Seq_of_environmental_metagenomes_gut_metagenome_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/002/SRR10688402/SRR10688402_1.fastq.gz -o SRR10688402_DNA-Seq_of_environmental_metagenomes_gut_metagenome_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/002/SRR10688402/SRR10688402_2.fastq.gz -o SRR10688402_DNA-Seq_of_environmental_metagenomes_gut_metagenome_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/003/SRR10688403/SRR10688403_1.fastq.gz -o SRR10688403_DNA-Seq_of_environmental_metagenomes_gut_metagenome_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/003/SRR10688403/SRR10688403_2.fastq.gz -o SRR10688403_DNA-Seq_of_environmental_metagenomes_gut_metagenome_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/001/SRR10688401/SRR10688401_1.fastq.gz -o SRR10688401_DNA-Seq_of_environmental_metagenomes_gut_metagenome_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/001/SRR10688401/SRR10688401_2.fastq.gz -o SRR10688401_DNA-Seq_of_environmental_metagenomes_gut_metagenome_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/006/SRR10688406/SRR10688406_1.fastq.gz -o SRR10688406_DNA-Seq_of_environmental_metagenomes_gut_metagenome_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/006/SRR10688406/SRR10688406_2.fastq.gz -o SRR10688406_DNA-Seq_of_environmental_metagenomes_gut_metagenome_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/000/SRR10688400/SRR10688400_1.fastq.gz -o SRR10688400_DNA-Seq_of_environmental_metagenomes_gut_metagenome_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/000/SRR10688400/SRR10688400_2.fastq.gz -o SRR10688400_DNA-Seq_of_environmental_metagenomes_gut_metagenome_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/098/SRR10688398/SRR10688398_1.fastq.gz -o SRR10688398_DNA-Seq_of_environmental_metagenomes_gut_metagenome_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/098/SRR10688398/SRR10688398_2.fastq.gz -o SRR10688398_DNA-Seq_of_environmental_metagenomes_gut_metagenome_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/099/SRR10688399/SRR10688399_1.fastq.gz -o SRR10688399_DNA-Seq_of_environmental_metagenomes_gut_metagenome_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/099/SRR10688399/SRR10688399_2.fastq.gz -o SRR10688399_DNA-Seq_of_environmental_metagenomes_gut_metagenome_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/097/SRR10688397/SRR10688397_1.fastq.gz -o SRR10688397_DNA-Seq_of_environmental_metagenomes_gut_metagenome_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/097/SRR10688397/SRR10688397_2.fastq.gz -o SRR10688397_DNA-Seq_of_environmental_metagenomes_gut_metagenome_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/096/SRR10688396/SRR10688396_1.fastq.gz -o SRR10688396_DNA-Seq_of_environmental_metagenomes_gut_metagenome_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/096/SRR10688396/SRR10688396_2.fastq.gz -o SRR10688396_DNA-Seq_of_environmental_metagenomes_gut_metagenome_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/095/SRR10688395/SRR10688395_1.fastq.gz -o SRR10688395_DNA-Seq_of_environmental_metagenomes_gut_metagenome_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR106/095/SRR10688395/SRR10688395_2.fastq.gz -o SRR10688395_DNA-Seq_of_environmental_metagenomes_gut_metagenome_2.fastq.gz
+# next we find the paths for the manifest file
+ls -d "$PWD/"*_1*
+ls -d "$PWD/"*_2*
+# created the manifest and ready to import (note needed PairedEndFastqManifestPhred33V2)
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path wang_manifest.txt \
+  --output-path wang_pairend_demux.qza \
+  --input-format PairedEndFastqManifestPhred33V2
+# then we generate the qzv file
+qiime demux summarize \
+  --i-data wang_pairend_demux.qza \
+  --o-visualization wang_pairend_demux.qzv
+qiime dada2 denoise-paired \
+--i-demultiplexed-seqs wang_pairend_demux.qza \
+--p-trunc-len-f 150 \
+--p-trunc-len-r 150 \
+--p-trim-left-f 0 \
+--p-trim-left-r 0 \
+--o-representative-sequences rep-seqs-pairend-wang.qza \
+--o-table table-pairend-wang.qza \
+--o-denoising-stats stats-pairend-wang.qza
+
+
+# this part is for moving all of the files into QUEST, we start by making the directories in my quest
+
+# the first part makes pre and post folders for the studies
+mkdir pre
+mkdir post
+
+# then we create file directories in post
+
+mkdir chen_A
+mkdir guerrero
+mkdir li_B
+mkdir liu
+mkdir lyu 
+mkdir magagnoli
+mkdir mays
+mkdir moeller
+mkdir muhammad
+mkdir serrano
+mkdir wang_D
+
+# next we load in the contents using cyberduck and move it to the project folder
+
+mv chen_A/* /projects/p31966/olsdal/chen_A
+mv guerrero/* /projects/p31966/olsdal/guerrero
+mv li_B/* /projects/p31966/olsdal/li_B
+mv liu/* /projects/p31966/olsdal/liu
+mv lyu/* /projects/p31966/olsdal/lyu
+mv magagnoli/* /projects/p31966/olsdal/magagnoli
+mv mays/* /projects/p31966/olsdal/mays
+mv moeller/* /projects/p31966/olsdal/moeller
+mv muhammad/* /projects/p31966/olsdal/muhammad
+mv serrano/* /projects/p31966/olsdal/serrano
+mv wang_D/* /projects/p31966/olsdal/wang_D
+
+# next we go to our pre and continue to do studies normally
+
+# we now move on to the next study
+mkdir zhangA
+mkdir fastqz
+# import the .gz files
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/017/SRR10912417/SRR10912417_1.fastq.gz -o SRR10912417_Microhyla_fissipes_gut_contents_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/017/SRR10912417/SRR10912417_2.fastq.gz -o SRR10912417_Microhyla_fissipes_gut_contents_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/015/SRR10912415/SRR10912415_1.fastq.gz -o SRR10912415_Microhyla_fissipes_gut_contents_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/015/SRR10912415/SRR10912415_2.fastq.gz -o SRR10912415_Microhyla_fissipes_gut_contents_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/018/SRR10912418/SRR10912418_1.fastq.gz -o SRR10912418_Microhyla_fissipes_gut_contents_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/018/SRR10912418/SRR10912418_2.fastq.gz -o SRR10912418_Microhyla_fissipes_gut_contents_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/016/SRR10912416/SRR10912416_1.fastq.gz -o SRR10912416_Microhyla_fissipes_gut_contents_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/016/SRR10912416/SRR10912416_2.fastq.gz -o SRR10912416_Microhyla_fissipes_gut_contents_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/014/SRR10912414/SRR10912414_1.fastq.gz -o SRR10912414_Microhyla_fissipes_gut_contents_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/014/SRR10912414/SRR10912414_2.fastq.gz -o SRR10912414_Microhyla_fissipes_gut_contents_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/013/SRR10912413/SRR10912413_1.fastq.gz -o SRR10912413_Microhyla_fissipes_gut_contents_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/013/SRR10912413/SRR10912413_2.fastq.gz -o SRR10912413_Microhyla_fissipes_gut_contents_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/012/SRR10912412/SRR10912412_1.fastq.gz -o SRR10912412_Microhyla_fissipes_gut_contents_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/012/SRR10912412/SRR10912412_2.fastq.gz -o SRR10912412_Microhyla_fissipes_gut_contents_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/011/SRR10912411/SRR10912411_1.fastq.gz -o SRR10912411_Microhyla_fissipes_gut_contents_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/011/SRR10912411/SRR10912411_2.fastq.gz -o SRR10912411_Microhyla_fissipes_gut_contents_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/009/SRR10912409/SRR10912409_1.fastq.gz -o SRR10912409_Microhyla_fissipes_gut_contents_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/009/SRR10912409/SRR10912409_2.fastq.gz -o SRR10912409_Microhyla_fissipes_gut_contents_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/010/SRR10912410/SRR10912410_1.fastq.gz -o SRR10912410_Microhyla_fissipes_gut_contents_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR109/010/SRR10912410/SRR10912410_2.fastq.gz -o SRR10912410_Microhyla_fissipes_gut_contents_2.fastq.gz
+# next we find the paths for the manifest file
+ls -d "$PWD/"*_1*
+ls -d "$PWD/"*_2*
+# created the manifest and ready to import (note needed PairedEndFastqManifestPhred33V2)
+module load qiime2/2022.8
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path zhangA_manifest.txt \
+  --output-path zhangA_pairend_demux.qza \
+  --input-format PairedEndFastqManifestPhred33V2
+# then we generate the qzv file
+qiime demux summarize \
+  --i-data zhangA_pairend_demux.qza \
+  --o-visualization zhangA_pairend_demux.qzv
+chmod u+x zhangA_dada2.sh
+sbatch zhangA_dada2.sh
+
+
+# we now move on to the next study
+mkdir lin
+mkdir fastqz
+# import the .gz files
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/019/SRR18766919/SRR18766919_1.fastq.gz -o SRR18766919_gut_sample_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/019/SRR18766919/SRR18766919_2.fastq.gz -o SRR18766919_gut_sample_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/020/SRR18766920/SRR18766920_1.fastq.gz -o SRR18766920_gut_sample_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/020/SRR18766920/SRR18766920_2.fastq.gz -o SRR18766920_gut_sample_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/018/SRR18766918/SRR18766918_1.fastq.gz -o SRR18766918_gut_sample_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/018/SRR18766918/SRR18766918_2.fastq.gz -o SRR18766918_gut_sample_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/021/SRR18766921/SRR18766921_1.fastq.gz -o SRR18766921_gut_sample_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/021/SRR18766921/SRR18766921_2.fastq.gz -o SRR18766921_gut_sample_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/017/SRR18766917/SRR18766917_1.fastq.gz -o SRR18766917_gut_sample_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/017/SRR18766917/SRR18766917_2.fastq.gz -o SRR18766917_gut_sample_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/016/SRR18766916/SRR18766916_1.fastq.gz -o SRR18766916_gut_sample_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/016/SRR18766916/SRR18766916_2.fastq.gz -o SRR18766916_gut_sample_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/015/SRR18766915/SRR18766915_1.fastq.gz -o SRR18766915_gut_sample_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/015/SRR18766915/SRR18766915_2.fastq.gz -o SRR18766915_gut_sample_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/014/SRR18766914/SRR18766914_1.fastq.gz -o SRR18766914_gut_sample_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/014/SRR18766914/SRR18766914_2.fastq.gz -o SRR18766914_gut_sample_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/012/SRR18766912/SRR18766912_1.fastq.gz -o SRR18766912_gut_sample_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/012/SRR18766912/SRR18766912_2.fastq.gz -o SRR18766912_gut_sample_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/013/SRR18766913/SRR18766913_1.fastq.gz -o SRR18766913_gut_sample_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/013/SRR18766913/SRR18766913_2.fastq.gz -o SRR18766913_gut_sample_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/011/SRR18766911/SRR18766911_1.fastq.gz -o SRR18766911_gut_sample_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/011/SRR18766911/SRR18766911_2.fastq.gz -o SRR18766911_gut_sample_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/010/SRR18766910/SRR18766910_1.fastq.gz -o SRR18766910_gut_sample_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR187/010/SRR18766910/SRR18766910_2.fastq.gz -o SRR18766910_gut_sample_2.fastq.gz
+# next we find the paths for the manifest file
+ls -d "$PWD/"*_1*
+ls -d "$PWD/"*_2*
+# created the manifest and ready to import (note needed PairedEndFastqManifestPhred33V2)
+module load qiime2/2022.8
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path lin_manifest.txt \
+  --output-path lin_pairend_demux.qza \
+  --input-format PairedEndFastqManifestPhred33V2
+# then we generate the qzv file
+qiime demux summarize \
+  --i-data lin_pairend_demux.qza \
+  --o-visualization lin_pairend_demux.qzv
+chmod u+x lin_dada2.sh
+sbatch lin_dada2.sh
+
+# we now move on to the next study
+mkdir carphio
+mkdir fastqz
+# import the .gz files
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/002/ERR3048212/ERR3048212_1.fastq.gz -o ERR3048212_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/002/ERR3048212/ERR3048212_2.fastq.gz -o ERR3048212_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/003/ERR3048213/ERR3048213_1.fastq.gz -o ERR3048213_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/003/ERR3048213/ERR3048213_2.fastq.gz -o ERR3048213_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/004/ERR3048214/ERR3048214_1.fastq.gz -o ERR3048214_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/004/ERR3048214/ERR3048214_2.fastq.gz -o ERR3048214_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/001/ERR3048211/ERR3048211_1.fastq.gz -o ERR3048211_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/001/ERR3048211/ERR3048211_2.fastq.gz -o ERR3048211_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/000/ERR3048210/ERR3048210_1.fastq.gz -o ERR3048210_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/000/ERR3048210/ERR3048210_2.fastq.gz -o ERR3048210_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/007/ERR3048217/ERR3048217_1.fastq.gz -o ERR3048217_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/007/ERR3048217/ERR3048217_2.fastq.gz -o ERR3048217_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/006/ERR3048216/ERR3048216_1.fastq.gz -o ERR3048216_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/006/ERR3048216/ERR3048216_2.fastq.gz -o ERR3048216_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/008/ERR3048218/ERR3048218_1.fastq.gz -o ERR3048218_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/008/ERR3048218/ERR3048218_2.fastq.gz -o ERR3048218_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/005/ERR3048215/ERR3048215_1.fastq.gz -o ERR3048215_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/005/ERR3048215/ERR3048215_2.fastq.gz -o ERR3048215_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/009/ERR3048209/ERR3048209_1.fastq.gz -o ERR3048209_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/009/ERR3048209/ERR3048209_2.fastq.gz -o ERR3048209_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/009/ERR3048219/ERR3048219_1.fastq.gz -o ERR3048219_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/009/ERR3048219/ERR3048219_2.fastq.gz -o ERR3048219_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/003/ERR3048223/ERR3048223_1.fastq.gz -o ERR3048223_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/003/ERR3048223/ERR3048223_2.fastq.gz -o ERR3048223_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/002/ERR3048222/ERR3048222_1.fastq.gz -o ERR3048222_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/002/ERR3048222/ERR3048222_2.fastq.gz -o ERR3048222_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/001/ERR3048221/ERR3048221_1.fastq.gz -o ERR3048221_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/001/ERR3048221/ERR3048221_2.fastq.gz -o ERR3048221_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/000/ERR3048220/ERR3048220_1.fastq.gz -o ERR3048220_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/000/ERR3048220/ERR3048220_2.fastq.gz -o ERR3048220_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/004/ERR3048224/ERR3048224_1.fastq.gz -o ERR3048224_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/004/ERR3048224/ERR3048224_2.fastq.gz -o ERR3048224_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/005/ERR3048225/ERR3048225_1.fastq.gz -o ERR3048225_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/005/ERR3048225/ERR3048225_2.fastq.gz -o ERR3048225_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/006/ERR3048226/ERR3048226_1.fastq.gz -o ERR3048226_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/006/ERR3048226/ERR3048226_2.fastq.gz -o ERR3048226_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/007/ERR3048227/ERR3048227_1.fastq.gz -o ERR3048227_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/007/ERR3048227/ERR3048227_2.fastq.gz -o ERR3048227_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/009/ERR3048229/ERR3048229_1.fastq.gz -o ERR3048229_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/009/ERR3048229/ERR3048229_2.fastq.gz -o ERR3048229_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/008/ERR3048228/ERR3048228_1.fastq.gz -o ERR3048228_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/008/ERR3048228/ERR3048228_2.fastq.gz -o ERR3048228_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/000/ERR3048230/ERR3048230_1.fastq.gz -o ERR3048230_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/000/ERR3048230/ERR3048230_2.fastq.gz -o ERR3048230_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/001/ERR3048231/ERR3048231_1.fastq.gz -o ERR3048231_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/001/ERR3048231/ERR3048231_2.fastq.gz -o ERR3048231_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/003/ERR3048233/ERR3048233_1.fastq.gz -o ERR3048233_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/003/ERR3048233/ERR3048233_2.fastq.gz -o ERR3048233_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/002/ERR3048232/ERR3048232_1.fastq.gz -o ERR3048232_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/002/ERR3048232/ERR3048232_2.fastq.gz -o ERR3048232_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/005/ERR3048235/ERR3048235_1.fastq.gz -o ERR3048235_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/005/ERR3048235/ERR3048235_2.fastq.gz -o ERR3048235_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/004/ERR3048234/ERR3048234_1.fastq.gz -o ERR3048234_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/004/ERR3048234/ERR3048234_2.fastq.gz -o ERR3048234_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/006/ERR3048236/ERR3048236_1.fastq.gz -o ERR3048236_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/006/ERR3048236/ERR3048236_2.fastq.gz -o ERR3048236_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/007/ERR3048237/ERR3048237_1.fastq.gz -o ERR3048237_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/007/ERR3048237/ERR3048237_2.fastq.gz -o ERR3048237_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/008/ERR3048238/ERR3048238_1.fastq.gz -o ERR3048238_Illumina_MiSeq_paired_end_sequencing_1.fastq.gz
+curl -L ftp://ftp.sra.ebi.ac.uk/vol1/fastq/ERR304/008/ERR3048238/ERR3048238_2.fastq.gz -o ERR3048238_Illumina_MiSeq_paired_end_sequencing_2.fastq.gz
+# next we find the paths for the manifest file
+ls -d "$PWD/"*_1*
+ls -d "$PWD/"*_2*
+# created the manifest and ready to import (note needed PairedEndFastqManifestPhred33V2)
+module load qiime2/2022.8
+qiime tools import \
+  --type 'SampleData[PairedEndSequencesWithQuality]' \
+  --input-path carphio_manifest.txt \
+  --output-path carphio_pairend_demux.qza \
+  --input-format PairedEndFastqManifestPhred33V2
+# then we generate the qzv file
+qiime demux summarize \
+  --i-data carphio_pairend_demux.qza \
+  --o-visualization carphio_pairend_demux.qzv
+chmod u+x carphio_dada2.sh
+sbatch carphio_dada2.sh
+
